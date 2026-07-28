@@ -3,8 +3,8 @@
 </script>
 
 <template>
-  <div class="service">
-    <h1>服务</h1>
+  <div class="about">
+    <h1>关于</h1>
   </div>
 </template>
 

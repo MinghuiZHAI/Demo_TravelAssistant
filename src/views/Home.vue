@@ -1,142 +1,103 @@
+
+
 <template>
-  <div class="home">
-    <!-- 顶部导航栏 -->
-    <van-nav-bar
-        title="首页"
-        left-text="返回"
-        right-text="设置"
-        left-arrow
+  <div class="page-container">
+    <van-nav-bar title="智能旅游助手" />
+  </div>
+  <div class="page-content">
+    <van-notice-bar
+        left-icon="volume-o"
+        text="基于AI的智能景点介绍与形成规划系统"
     />
 
-    <!-- 轮播图 -->
-    <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
-      <van-swipe-item>
-        <div class="slide-content" style="background: #39a9ed;">
-          <h2>欢迎来到首页</h2>
-          <p>Vite + Vue 3 + Vant</p>
-        </div>
-      </van-swipe-item>
-      <van-swipe-item>
-        <div class="slide-content" style="background: #66c6f2;">
-          <h2>路由已配置</h2>
-          <p>点击底部导航切换页面</p>
-        </div>
-      </van-swipe-item>
-      <van-swipe-item>
-        <div class="slide-content" style="background: #aa80f0;">
-          <h2>开始编码吧</h2>
-          <p>🚀 加油！</p>
-        </div>
-      </van-swipe-item>
-    </van-swipe>
+    <div class="card">
+      <div class="section-title">
+        规划你的旅程
+      </div>
+      <!-- 可以使用 CellGroup 作为容器 -->
+      <van-cell-group inset>
+        <van-field
+            @click="showCityPicker = true"
+            v-model="formData.city" label="文本" placeholder="请输入用户名" />
+      </van-cell-group>
 
-    <!-- 商品卡片列表 -->
-    <div class="product-list">
-      <h3 class="section-title">热门商品</h3>
-      <van-row gutter="12">
-        <van-col span="12" v-for="item in products" :key="item.id">
-          <van-card
-              :title="item.title"
-              :price="item.price"
-              :thumb="item.thumb"
-          />
-        </van-col>
-      </van-row>
     </div>
 
-    <!-- 底部导航栏 -->
-    <van-tabbar v-model="activeTab">
-      <van-tabbar-item icon="home-o" to="/">首页</van-tabbar-item>
-      <van-tabbar-item icon="search" to="/search">搜索</van-tabbar-item>
-      <van-tabbar-item icon="cart-o" to="/cart">购物车</van-tabbar-item>
-      <van-tabbar-item icon="user-o" to="/profile">我的</van-tabbar-item>
-    </van-tabbar>
+    <div class="card">
+      <div class="section-title">
+        快捷入口
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        热门目的地
+      </div>
+    </div>
+
   </div>
+
+<!--  弹出层-->
+  <van-popup
+      round="bottom"
+      v-model:show="showCityPicker" position="bottom">
+    <van-picker
+        title="标题"
+        :columns="columns"
+        @confirm="onConfirm"
+        @cancel="onCancel"
+    />
+  </van-popup>
+
 </template>
 
 <script setup>
-import { ref } from 'vue'
+  import { ref, reactive } from 'vue';
 
-// 底部导航的当前选中项（默认选中首页）
-const activeTab = ref(0)
+  const showCityPicker = ref(false);
 
-// 模拟商品数据
-const products = ref([
-  {
-    id: 1,
-    title: 'Vant 官方 T恤',
-    price: '99.00',
-    thumb: 'https://fastly.jsdelivr.net/npm/@vant/assets/card-1.png'
-  },
-  {
-    id: 2,
-    title: 'Vant 帆布包',
-    price: '59.00',
-    thumb: 'https://fastly.jsdelivr.net/npm/@vant/assets/card-2.png'
-  },
-  {
-    id: 3,
-    title: 'Vant 鼠标垫',
-    price: '39.00',
-    thumb: 'https://fastly.jsdelivr.net/npm/@vant/assets/card-3.png'
-  },
-  {
-    id: 4,
-    title: 'Vant 保温杯',
-    price: '79.00',
-    thumb: 'https://fastly.jsdelivr.net/npm/@vant/assets/card-4.png'
-  }
-])
+  const formData = reactive({
+    "city": "",
+    "budget": null,
+    "days": null
+  })
+
+  const allCities = [
+    '北京', '上海', '广州', '深圳', '杭州', '成都', '重庆', '西安',
+    '武汉', '南京', '长沙', '青岛', '厦门', '三亚', '昆明', '大理',
+    '丽江', '桂林', '苏州', '扬州', '天津', '郑州', '沈阳', '哈尔滨',
+    '长春', '大连', '济南', '太原', '兰州', '西宁', '拉萨', '乌鲁木齐',
+    '呼和浩特', '银川', '贵阳', '南宁', '海口', '福州', '南昌', '合肥',
+    '石家庄', '珠海', '烟台', '泉州', '张家界', '黄山', '敦煌', '秦皇岛'
+  ]
+  const columns = allCities.map(city =>({
+    text: city,
+    value: city
+  }))
+  const onConfirm = () => { }
+  const onCancel = () => { }
+
 </script>
 
 <style scoped>
-.home {
-  padding-bottom: 50px; /* 为底部导航留出空间 */
-  background-color: #f7f8fa;
-  min-height: 100vh;
-}
+  .page-content {
+    padding: 16px;
+  }/*内容样式*/
 
-.my-swipe {
-  height: 180px;
-  margin: 12px 16px;
-  border-radius: 12px;
-  overflow: hidden;
-}
+  .card {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }/*卡片样式*/
 
-.slide-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  color: white;
-}
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #323233;
+    margin-bottom: 12px;
 
-.slide-content h2 {
-  margin: 0 0 8px 0;
-  font-size: 20px;
-}
+  }/*卡片标题样式*/
 
-.slide-content p {
-  margin: 0;
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.product-list {
-  padding: 0 16px;
-}
-
-.section-title {
-  margin: 16px 0 12px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #323233;
-}
-
-/* Vant 卡片在列中的间距调整 */
-:deep(.van-card) {
-  margin-bottom: 12px;
-  background-color: white;
-}
 </style>
