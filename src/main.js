@@ -12,6 +12,8 @@ import {     /*引入vant组件元素*/
     Field,
     Popup,
     Picker,
+    Grid,
+    GridItem
 } from "vant";
 import router from './router'
 
@@ -27,5 +29,7 @@ app.use(NoticeBar)
 app.use(Field)
 app.use(Popup)
 app.use(Picker)
+app.use(Grid)
+app.use(GridItem)
 app.use(router)
 app.mount('#app')
