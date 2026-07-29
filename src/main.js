@@ -5,6 +5,8 @@ import App from './App.vue'
 import {     /*引入vant组件元素*/
     Button,
     Card,
+    Cell,
+    CellGroup,
     Tabbar,
     TabbarItem,
     Icon, NavBar,
@@ -25,6 +27,8 @@ import router from './router'
 const app = createApp(App);
 app.use(Button)
 app.use(Card)
+app.use(Cell)
+app.use(CellGroup)
 app.use(Tabbar)
 app.use(TabbarItem)
 app.use(Icon)
