@@ -45,7 +45,8 @@
 <script setup>
 import {useRoute, useRouter} from "vue-router";
 import {ref} from "vue";
-import router from "../router/index.js";  //??
+import router from "../router/index";             //??
+import {fetchStream} from "../utils/request";
 
 const route = useRoute()
 const onBack = () => {
@@ -57,7 +58,15 @@ const inputMessage = ref("");
 //是否正在流式传输
 const isStreaming = ref(false);
 //发送消息
-const sendMessage = () => {}
+const sendMessage = () => {
+  fetchStream("chat", { message: inputMessage.value }, (chunk) =>{
+    console.log(chunk)
+  }, () => {
+
+  }, () => {
+
+  })
+}
 //对话消息
 const messages = ref([])
 
