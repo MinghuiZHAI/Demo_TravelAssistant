@@ -13,7 +13,7 @@ import {     /*引入vant组件元素*/
     Popup,
     Picker,
     Grid,
-    GridItem
+    GridItem,
 } from "vant";
 import router from './router'
 

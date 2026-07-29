@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="page-container">
     <van-nav-bar title="智能旅游助手" />
@@ -94,8 +92,9 @@
 </template>
 
 <script setup>
-import {ref, reactive, computed} from 'vue';
+import {ref, reactive} from 'vue';
 import { useRouter } from 'vue-router';
+import { showToast } from 'vant';  /*引入轻提示，使用showToast函数*/
 
   const router = useRouter();
 
@@ -131,6 +130,24 @@ import { useRouter } from 'vue-router';
   //旅游规划提交
   const handleSubmit = () => {
     console.log(formData)
+    // 校验
+    if(!formData.city) {
+      showToast('请选择目的地')
+    }
+    if(!formData.budget || formData.budget < 100) {
+      showToast('预算不能低于100元')
+    }
+    if(!formData.days || formData.days <= 1 || formData.days >= 30) {
+      showToast('天数必须在1到30天之间')
+    }
+    router.push({
+      path: '/detail',
+      query: {
+        city: formData.city,
+        budget: formData.budget,
+        days: formData.days
+      }
+    })
   }
 
   //快捷入口页面跳转

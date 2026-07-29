@@ -9,5 +9,7 @@
 </template>
 
 <style scoped>
-
+.service {
+  padding: 20px;
+}
 </style>
