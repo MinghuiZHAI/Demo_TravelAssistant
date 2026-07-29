@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.18.1",
     "unplugin-auto-import": "^21.0.0",
     "vant": "^4.10.0",
     "vue": "^3.5.39",
