@@ -9,11 +9,11 @@ import Detail from '../views/Detail.vue'
 
 //  定义路由规则
 const routes = [
-    { path: '/', name: Home, component: Home },
-    { path: '/chat', name: Chat, component: Chat },
-    { path: '/Service', name: Service, component: Service },
-    { path: '/profile', name: Profile, component: Profile },
-    { path: '/detail', name: Detail, component: Detail }
+    { path: '/', name: 'Home', component: Home },
+    { path: '/chat', name: 'Chat', component: Chat },
+    { path: '/service', name: 'Service', component: Service },
+    { path: '/profile', name: 'Profile', component: Profile },
+    { path: '/detail', name: 'Detail', component: Detail }
 ]
 
 // 创建路由实例

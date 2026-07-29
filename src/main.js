@@ -19,7 +19,8 @@ import {     /*引入vant组件元素*/
     Loading,
     Empty,
     Collapse,
-    CollapseItem
+    CollapseItem,
+    Tag
 } from "vant";
 import router from './router'
 
@@ -43,5 +44,6 @@ app.use(Loading)
 app.use(Empty)
 app.use(Collapse)
 app.use(CollapseItem)
+app.use(Tag)
 app.use(router)
 app.mount('#app')

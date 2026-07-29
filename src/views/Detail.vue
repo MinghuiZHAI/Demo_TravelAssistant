@@ -89,7 +89,7 @@
 
     </div>
 
-    //底部按钮
+<!--    底部按钮-->
     <div class="detail-footer" v-if="tripData && tripData.success !== false">
       <van-button class="primary-button"
                   @click="goToChat"
