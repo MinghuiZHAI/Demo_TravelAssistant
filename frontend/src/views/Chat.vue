@@ -176,7 +176,7 @@ const quickQuestions = ref([
 }
 
 .chat-container {
-  //解决界面双滚动条问题，去掉flex，添加height
+  /*解决界面双滚动条问题，去掉flex，添加height*/
   /*flex: 1;*/
   height: 630px;
   overflow-y: auto;
