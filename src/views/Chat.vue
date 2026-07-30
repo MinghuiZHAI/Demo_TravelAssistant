@@ -6,7 +6,7 @@
                    left-arrow left-text="返回" @click-left="onBack"/>
 
     </div>
-    <div class="chat-container">
+    <div class="chat-container" ref="chatContainer">
 <!--      还没有进行对话时：-->
       <div class="chat-empty" v-if="messages.length === 0">
         <van-empty description="开始和 AI旅游助手 对话"/>
@@ -52,19 +52,30 @@ import {useRouter} from "vue-router";
 import {ref} from "vue";
 import {fetchStream} from "../utils/request";
 import {showToast} from "vant";
-import ChatButton from "../components/ChatBubble.vue";
 import ChatBubble from "../components/ChatBubble.vue";
+
+// 聊天容器
+const chatContainer = ref(null);
 
 const router = useRouter()
 const onBack = () => {
   router.back()
 }
 
-//用户输入 输入框
+// 置顶的滚动条
+const scrollToBottom = () => {
+  //如果滚动容器存在
+  if(chatContainer.value) {
+    //设置为当前滚动的最大高度
+    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+  }
+}
+
+// 用户输入 输入框
 const inputMessage = ref("");
-//是否正在流式传输
+// 是否正在流式传输
 const isStreaming = ref(false);
-//发送消息
+// 发送消息
 const sendMessage = () => {
   //获取用户信息
   const msg = inputMessage.value.trim();
@@ -122,10 +133,13 @@ const fetchAIResponse = (userMsg) => {
     if (lastMsg && lastMsg.role === 'ai') {
       lastMsg.content = fullResponse
     }
+    //置顶对话框
+    scrollToBottom()
 
   }, () => {
     // AI回复完成
     isStreaming.value = false;
+    scrollToBottom()
   }, (errMsg) => {
     // AI回复失败
     const lastMsg = messages.value[messages.value.length - 1]
@@ -133,7 +147,8 @@ const fetchAIResponse = (userMsg) => {
       lastMsg.content = `抱歉，AI发生错误：${errMsg}`
     }
     isStreaming.value = false;
-    showToast('AI回复失败')
+    showToast('AI回复错误，请稍后重试')
+    scrollToBottom()
   })
 }
 
@@ -161,7 +176,9 @@ const quickQuestions = ref([
 }
 
 .chat-container {
-  flex: 1;
+  //解决界面双滚动条问题，去掉flex，添加height
+  /*flex: 1;*/
+  height: 630px;
   overflow-y: auto;
   padding: 16px;
   padding-bottom: 60px;
