@@ -1,8 +1,8 @@
 <template>
   <div class="page-container chat-page">
-    <div class="page-header">
+    <div class="page-header" style="height: 46px">
       <van-nav-bar title="AI旅游助手"
-                   flexed
+                   fixed
                    left-arrow left-text="返回" @click-left="onBack"/>
 
     </div>
@@ -20,7 +20,12 @@
       </div>
 <!--      有对话内容时： -->
 <!--      !!! ai对话需要用到SSE流式接口!!!   -->
-      <div class="message-list" v-else="">
+      <div class="message-list" v-else>
+        <ChatBubble v-for="message in messages" :key="message.id" :message="message"></ChatBubble>
+        <div class="streaming-indicator" v-if="isStreaming">
+          <van-loading type="spinner" size="20"/>
+          <span>AI正在思考中</span>
+        </div>
 
       </div>
 
@@ -43,12 +48,14 @@
 </template>
 
 <script setup>
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import {ref} from "vue";
-import router from "../router/index";             //??
 import {fetchStream} from "../utils/request";
+import {showToast} from "vant";
+import ChatButton from "../components/ChatBubble.vue";
+import ChatBubble from "../components/ChatBubble.vue";
 
-const route = useRoute()
+const router = useRouter()
 const onBack = () => {
   router.back()
 }
@@ -59,14 +66,78 @@ const inputMessage = ref("");
 const isStreaming = ref(false);
 //发送消息
 const sendMessage = () => {
-  fetchStream("chat", { message: inputMessage.value }, (chunk) =>{
-    console.log(chunk)
-  }, () => {
+  //获取用户信息
+  const msg = inputMessage.value.trim();
+  //如果内容不存在 或 AI正在返回数据
+  if (!msg || isStreaming.value) {
+    return;
+  }
+  //创建用户的会话消息
+  addUserMessage(msg)
 
-  }, () => {
+  //先存一份用户输入的数据
+  const userMsg = inputMessage.value
 
+  //把输入框的内容清空
+  inputMessage.value = "";
+  //调用流式响应方法
+  fetchAIResponse(userMsg)
+
+}
+
+//封装用户会话消息
+const addUserMessage = (msg) => {
+  messages.value.push({
+    //通过当前时间+1来得到唯一id
+    id: Date.now() + 1,
+    role: "user",
+    content: msg,
+    timestamp: new Date().toISOString()
   })
 }
+
+
+// 获取流式响应
+const fetchAIResponse = (userMsg) => {
+  isStreaming.value = true;
+  //添加AI返回的消息
+  messages.value.push({
+    id: Date.now() + 2,
+    role: "ai",
+    content: '',
+    timestamp: new Date().toISOString()
+  })
+
+  //创建变量，用来接收字符串信息
+  let fullResponse = ''
+
+
+  fetchStream("chat", { message: userMsg }, (chunk) =>{
+    // 测试用 console.log(chunk)
+    // 拼接字符串
+    fullResponse += chunk;
+    // 得到的内容更新到ai的content中，让它不断地输出
+    // AI正在回复的消息，得到length-1 索引，输出最后一条
+    const lastMsg = messages.value[messages.value.length - 1]
+    if (lastMsg && lastMsg.role === 'ai') {
+      lastMsg.content = fullResponse
+    }
+
+  }, () => {
+    // AI回复完成
+    isStreaming.value = false;
+  }, (errMsg) => {
+    // AI回复失败
+    const lastMsg = messages.value[messages.value.length - 1]
+    if (lastMsg && lastMsg.role === 'ai') {
+      lastMsg.content = `抱歉，AI发生错误：${errMsg}`
+    }
+    isStreaming.value = false;
+    showToast('AI回复失败')
+  })
+}
+
+
 //对话消息
 const messages = ref([])
 

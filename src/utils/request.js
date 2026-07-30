@@ -62,13 +62,40 @@ export async function fetchStream(url, data, onChunk, onComplete, onError) {
     // 将二进制数据解码为字符串
     const decoder = new TextDecoder()
 
+    // 流式接口的处理
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         // 返回二进制流数据的真实结果，即字符串结果
         const chunk = decoder.decode(value, { stream: true })
         console.log(chunk)
-    }
+        //根据空行对字符串进行切割
+        const lines = chunk.split('\n').filter(line => line.trim())
+
+        for (const line of lines) {
+            if( line.startsWith('data:') ) {
+                //截掉前面5个字符
+                const jsonStr = line.substring(5)
+                if (jsonStr) {
+                    //通过JSON.parse()方法转为JSON对象
+                    const  jsonData = JSON.parse(jsonStr)
+
+                    if (jsonData.type === 'chunk') {
+                        //分片的数据
+                        onChunk(jsonData.content)
+                    } else if (jsonData.done){
+                        //完成的数据
+                        onComplete()
+                    } else if (jsonData.error){
+                        //错误的数据
+                        onError(jsonData.error)
+                    }
+                }
+
+            }
+
+        }
+    } // 流式接口处理完成
 
     // 读取完成后，终止
     return controller.abort();
