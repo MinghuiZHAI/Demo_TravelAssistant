@@ -48,7 +48,7 @@ public class Result<T> {
     }
 
 //    业务异常
-    public static <T> Result<T> fail(String message){
+    public static <T> Result<T> fail(Integer code, String message){
         Result<T> result = fail();
         result.setMessage(message);
         return result;
