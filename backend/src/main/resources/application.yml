@@ -1,2 +1,10 @@
 server:
   port: 3200
+
+
+
+
+llm:
+  base-url: https://api.deepseek.com/
+  model: deepseek-v4-flash
+  api-key: your-real-api-key-here
