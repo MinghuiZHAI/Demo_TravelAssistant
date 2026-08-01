@@ -46,10 +46,9 @@ public class TravelController {
 
     }
 
-    @PostMapping("/chat", produces = "text/event-stream")
+    @PostMapping(value = "/chat", produces = "text/event-stream")
     public SseEmitter chat(@Valid @RequestBody ChatRequestDTO chatRequestDTO) {
-
-
+        return travelService.chat(chatRequestDTO.getMessage());
     }
 
 }

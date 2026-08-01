@@ -2,13 +2,20 @@ package com.travelassistant.backend.service;
 
 //service层 用来处理业务 以及 和model层与数据库的交互
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelassistant.backend.utils.LLMutils;
+import com.travelassistant.backend.vo.StreamChunkVO;
+import com.travelassistant.backend.vo.StreamDoneVO;
+import com.travelassistant.backend.vo.StreamErrorVO;
 import com.travelassistant.backend.vo.TravelRecommendVO;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
+import java.util.function.Consumer;
 
 @Service
 public class TravelService {
@@ -20,13 +27,13 @@ public class TravelService {
     private String model;
 
 //    不能通过构造函数实例化llMutils，因为通过@Value注解的形式赋值了属性，构造函数中无法直接拿到赋值后的结果
-    private LLMutils llMutils;
+    private LLMutils llmUtils;
     private ObjectMapper objectMapper =  new ObjectMapper();
 
 //    用@PostConstruct，构造函数可以任意起名字，无需和类名一致
     @PostConstruct
     public void init() {
-        this.llMutils = new LLMutils(apiKey, baseUrl, model);
+        this.llmUtils = new LLMutils(apiKey, baseUrl, model);
     }
 
     public TravelRecommendVO recommend (String city, Integer days, Double budget) {
@@ -34,7 +41,7 @@ public class TravelService {
         String prompt = buildTravelPrompt(city, budget, days);
 
         try {
-            String response = llMutils.chat(null, prompt );
+            String response = llmUtils.chat(null, prompt );
 
             return parseTravelResponse(response);
         } catch (Exception e) {
@@ -153,8 +160,46 @@ public class TravelService {
                 "请确保JSON格式正确，可以被解析。";
     }
 
+//    发送对象
     public SseEmitter chat(String message) {
+        SseEmitter emitter = new SseEmitter(180000L);
 
+//        发送的处理逻辑
+        /* 发送的动作是根据大模型返回的结果决定的，是连续性的长连接
+        *  最好通过线程进行处理
+        * */
+        new Thread(() -> {
+            try {
+                String systemPrompt = "你是一个友好的旅游助手，请用中文回答用户关于旅游的问题。";
+
+                Consumer<String> callback = content -> {
+
+                    try {
+                        String chunkJSON = objectMapper.writeValueAsString(StreamChunkVO.of(content));
+                        emitter.send(SseEmitter.event().data(chunkJSON));
+                    }  catch (Exception e) {
+                        System.out.println("发送消息失败" + e);
+                    }
+                };
+
+                llmUtils.chatStream(systemPrompt, message, callback);
+//                发送完成
+                String doneJSON = objectMapper.writeValueAsString(StreamDoneVO.of());
+                emitter.send(SseEmitter.event().data(doneJSON));
+                emitter.complete();
+
+            }catch (Exception e) {
+//                报红了，只要是写入动作都需要try catch
+                try {
+                    String errorJSON = objectMapper.writeValueAsString(StreamErrorVO.of(e.getMessage()));
+                    emitter.send(SseEmitter.event().data(errorJSON));
+                }catch (Exception e1) {
+                    System.out.println("发送错误消息失败" + e1);
+                }
+                emitter.completeWithError(e);
+            }
+        }).start();
+
+        return emitter;
     }
-
 }
