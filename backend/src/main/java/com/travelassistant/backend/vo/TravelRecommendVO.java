@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 //旅游推荐实体对象
+@Data
 public class TravelRecommendVO {
     private Boolean success;
     private String city;
@@ -14,6 +15,8 @@ public class TravelRecommendVO {
     private List<BudgetBreakdown>  budgetBreakdown;
     private List<String> tips;
     private List<String> warnings;
+    private String error;
+    private String rawResponse;
 
     @Data
     public static class DailyItinerary {

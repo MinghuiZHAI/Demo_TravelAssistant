@@ -1,5 +1,6 @@
 package com.travelassistant.backend.controller;
 
+import com.travelassistant.backend.dto.ChatRequestDTO;
 import com.travelassistant.backend.dto.TravelRequestDTO;
 import com.travelassistant.backend.service.TravelService;
 import com.travelassistant.backend.vo.Result;
@@ -7,6 +8,7 @@ import com.travelassistant.backend.vo.TravelRecommendVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 // Controller层一般做参数的获取与校验
 
@@ -39,8 +41,14 @@ public class TravelController {
         TravelRecommendVO travelRecommendVO = travelService.recommend(
                 travelRequestDTO.getCity(), travelRequestDTO.getDays(), travelRequestDTO.getBudget()
         );
+        // 结果对外暴露
+        return Result.ok(travelRecommendVO);
 
-        return Result.ok(null);
+    }
+
+    @PostMapping("/chat", produces = "text/event-stream")
+    public SseEmitter chat(@Valid @RequestBody ChatRequestDTO chatRequestDTO) {
+
 
     }
 

@@ -2,11 +2,13 @@ package com.travelassistant.backend.service;
 
 //service层 用来处理业务 以及 和model层与数据库的交互
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelassistant.backend.utils.LLMutils;
 import com.travelassistant.backend.vo.TravelRecommendVO;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 public class TravelService {
@@ -19,6 +21,7 @@ public class TravelService {
 
 //    不能通过构造函数实例化llMutils，因为通过@Value注解的形式赋值了属性，构造函数中无法直接拿到赋值后的结果
     private LLMutils llMutils;
+    private ObjectMapper objectMapper =  new ObjectMapper();
 
 //    用@PostConstruct，构造函数可以任意起名字，无需和类名一致
     @PostConstruct
@@ -27,15 +30,67 @@ public class TravelService {
     }
 
     public TravelRecommendVO recommend (String city, Integer days, Double budget) {
-
+        TravelRecommendVO result = new TravelRecommendVO();
         String prompt = buildTravelPrompt(city, budget, days);
 
         try {
             String response = llMutils.chat(null, prompt );
 
+            return parseTravelResponse(response);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            result.setSuccess(false);
+            result.setError("旅游推荐失败");
+            return result;
         }
+
+    }
+
+    // service旅游推荐返回数据处理
+    private TravelRecommendVO parseTravelResponse(String response) {
+        TravelRecommendVO result = new TravelRecommendVO();
+
+        try {
+            String jsonContent = extractJson(response);
+            if (jsonContent != null) {
+                result = objectMapper.readValue(jsonContent, TravelRecommendVO.class);
+            } else {
+                result.setSuccess(false);
+                result.setError("未能从响应中提取JSON");
+                result.setRawResponse(response);
+            }
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setError("JSON解析失败");
+            result.setRawResponse(response);
+        }
+
+        return result;
+    }
+
+    private String extractJson(String response) {
+        if (response == null || response.isEmpty()) {
+            return null;
+        }
+
+        String[] patterns = {
+                "```json\\n([\\s\\S]*?)\\n```",
+                "```\\n([\\s\\S]*?)\\n```"
+        };
+
+        for (String pattern : patterns) {
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
+            java.util.regex.Matcher m = p.matcher(response);
+            if (m.find()) {
+                return m.group(1);
+            }
+        }
+
+        int start = response.indexOf('{');
+        int end = response.lastIndexOf('}');
+        if (start != -1 && end != -1 && end > start) {
+            return response.substring(start, end + 1);
+        }
+
         return null;
     }
 
@@ -97,4 +152,9 @@ public class TravelService {
                 "}\n\n" +
                 "请确保JSON格式正确，可以被解析。";
     }
+
+    public SseEmitter chat(String message) {
+
+    }
+
 }
