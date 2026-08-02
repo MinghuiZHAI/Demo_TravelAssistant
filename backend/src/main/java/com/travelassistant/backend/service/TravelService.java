@@ -10,6 +10,7 @@ import com.travelassistant.backend.vo.StreamDoneVO;
 import com.travelassistant.backend.vo.StreamErrorVO;
 import com.travelassistant.backend.vo.TravelRecommendVO;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+@Slf4j
 @Service
 public class TravelService {
     @Value("${llm.api-key}")
@@ -58,6 +60,7 @@ public class TravelService {
 
         try {
             String jsonContent = extractJson(response);
+
             if (jsonContent != null) {
                 result = objectMapper.readValue(jsonContent, TravelRecommendVO.class);
             } else {
@@ -66,8 +69,10 @@ public class TravelService {
                 result.setRawResponse(response);
             }
         } catch (Exception e) {
+//            打印完整堆栈
+            log.error("JSON 反序列化失败，详细错误: {}", e.getMessage(), e);
             result.setSuccess(false);
-            result.setError("JSON解析失败");
+            result.setError("JSON解析失败" + e.getMessage());
             result.setRawResponse(response);
         }
 

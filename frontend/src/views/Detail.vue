@@ -37,15 +37,16 @@
 <!--      当状态非loading非empty，且有值和success时，才显示页面-->
       <template v-else-if="tripData && tripData.success === true">
         <div class="card overview-card">    <!--flex布局-->
-          <h2>{{tripData.city}} ☼ {{tripData.days}}天行程</h2>
+          <h2>{{tripData.city}} · {{tripData.days}}天行程</h2>
         </div>
         <van-collapse v-model="activeDays">
 <!--          v-for遍历一定要要key  ,  name唯一值 -->
           <van-collapse-item
               v-for="day in tripData.dailyItinerary"
-              :key="day.days"
+              :key="day.day"
               :title="'第' + day.day + '天'"
-              :name="day.days">
+              :name="day.day"
+              @click="handleItemClick(day)">
 
             <div class="day-schedule">
               <div class="schedule-section">
@@ -101,7 +102,7 @@
 </template>
 
 <script setup>
-import {onMounted, reactive, ref} from "vue"
+import {onMounted, reactive, ref, watch} from "vue"
 /*useRoute和useRouter不一样，获取当前路由对象要用useRoute*/
 import {useRoute, useRouter} from 'vue-router'
 import { post } from '../utils/request'
@@ -114,6 +115,23 @@ const loading = ref(false)    /*定义loading状态*/
 const error = ref(true)
 // 旅游推荐详情数据
 const tripData = ref(null)
+
+
+/*问题排查*/
+// 当前展开的天数
+/*
+console.log('days 类型:', tripData.value?.dailyItinerary?.[0]?.days) // 看是 number 还是 string
+
+watch(activeDays, (newVal) => {
+  console.log('activeDays 变化:', newVal)
+})
+// 观察点击后 activeDays 是否发生了变化
+const handleItemClick = (day) => {
+  console.log('点击了第', day.day, '天，当前 activeDays:', activeDays.value)
+}*/
+/*问题排查*/
+
+const activeDays = ref([])
 
 const formData = reactive({
   city: '',

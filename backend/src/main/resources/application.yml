@@ -1,7 +1,10 @@
+spring:
+  profiles:
+    active: local
+
+
 server:
   port: 3200
-
-
 
 
 llm:

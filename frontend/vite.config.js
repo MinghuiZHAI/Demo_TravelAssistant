@@ -15,4 +15,14 @@ export default defineConfig({
       resolvers: [VantResolver()],
     }),
   ],
+
+  /*  前端处理跨域
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3200'
+      }
+    }
+  }*/
+
 })

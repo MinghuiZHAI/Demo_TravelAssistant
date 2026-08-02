@@ -12,7 +12,7 @@ public class TravelRecommendVO {
     private Integer days;
     private Double totalBudget;
     private List<DailyItinerary> dailyItinerary;
-    private List<BudgetBreakdown>  budgetBreakdown;
+    private BudgetBreakdown budgetBreakdown;
     private List<String> tips;
     private List<String> warnings;
     private String error;
@@ -42,7 +42,7 @@ public class TravelRecommendVO {
         private Double accommodation;
         private Double food;
         private Integer transportation;
-        private Integer ticket;
+        private Integer tickets;
         private Integer other;
     }
 

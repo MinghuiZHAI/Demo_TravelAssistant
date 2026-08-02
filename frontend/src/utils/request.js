@@ -2,7 +2,7 @@ import axios from "axios";
 
 //二次封装，基于axios创建了一个axios instance
 const instance = axios.create({
-    baseURL: "http://159.75.169.224:1236",
+    baseURL: "http://127.0.0.1:3200",
     timeout: 60000,
     headers: {
         "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export async function fetchStream(url, data, onChunk, onComplete, onError) {
     // 终止的请求控制器
     const controller = new AbortController();
     //通过await就能直接获得接口返回的数据
-    const response = await fetch(`http://159.75.169.224:1236/api/travel/${url}`, {
+    const response = await fetch(`http://127.0.0.1:3200/api/travel/${url}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

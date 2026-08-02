@@ -7,11 +7,13 @@ import com.travelassistant.backend.vo.Result;
 import com.travelassistant.backend.vo.TravelRecommendVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 // Controller层一般做参数的获取与校验
 
+@Slf4j
 @RestController
 @RequestMapping("/api/travel")
 @RequiredArgsConstructor
@@ -41,6 +43,9 @@ public class TravelController {
         TravelRecommendVO travelRecommendVO = travelService.recommend(
                 travelRequestDTO.getCity(), travelRequestDTO.getDays(), travelRequestDTO.getBudget()
         );
+
+//        log.info("AI 原始返回内容: {}", travelRecommendVO);
+
         // 结果对外暴露
         return Result.ok(travelRecommendVO);
 
