@@ -10,4 +10,4 @@ server:
 llm:
   base-url: https://api.deepseek.com/
   model: deepseek-v4-flash
-  api-key: your-real-api-key-here
+  api-key: ${LLM_API_KEY:dummy-key}
